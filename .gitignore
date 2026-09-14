@@ -1,0 +1,52 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+
+# Virtual Environment
+.venv/
+venv/
+env/
+
+
+# Environment Variables
+
+.env
+.env.*
+!.env.example
+
+
+# ChromaDB / Vector Store
+app/storage/chroma/
+
+
+# Uploaded / Generated Data
+
+app/data/*
+!app/data/.gitkeep
+
+
+# FastAPI
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+
+# IDE
+
+.vscode/
+.idea/
+
+
+# macOS
+
+.DS_Store
+
+
+# Logs
+
+*.log

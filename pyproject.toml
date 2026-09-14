@@ -1,0 +1,15 @@
+[project]
+name = "Queriva"
+version = "0.1.0"
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "python-multipart",
+    "pymupdf",
+    "chromadb",
+    "sentence-transformers",
+    "google-genai",
+    "python-dotenv",
+    "pydantic"
+]
