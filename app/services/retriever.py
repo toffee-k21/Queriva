@@ -4,7 +4,7 @@ from app.services.vector_store import search
 
 def retrieve(
     question,
-    document_id,
+    document_ids,
     top_k=5
 ):
 
@@ -14,7 +14,7 @@ def retrieve(
 
     results = search(
         query_embedding,
-        document_id,
+        document_ids,
         top_k
     )
 

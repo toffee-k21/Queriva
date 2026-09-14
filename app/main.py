@@ -5,7 +5,7 @@ from app.api.routes import chat
 
 
 app = FastAPI(
-    title="Study RAG API",
+    title="Queriva",
     version="1.0.0"
 )
 

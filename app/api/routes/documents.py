@@ -14,67 +14,56 @@ router = APIRouter(
     tags=["Documents"]
 )
 
-
 @router.post("/upload")
-async def upload_pdf(
-    file: UploadFile = File(...)
+async def upload_pdfs(
+    files: list[UploadFile] = File(...)
 ):
 
-    document_id = str(uuid.uuid4())
+    uploaded_documents = []
 
-    os.makedirs(
-        "data/uploads",
-        exist_ok=True
-    )
+    for file in files:
 
-    pdf_path = (
-        f"data/uploads/{document_id}.pdf"
-    )
+        document_id = str(uuid.uuid4())
 
-
-    # Save PDF
-
-    with open(pdf_path, "wb") as f:
-
-        f.write(
-            await file.read()
+        os.makedirs(
+            "data/uploads",
+            exist_ok=True
         )
 
-
-    # Extract text
-
-    pages = extract_pdf(
-        pdf_path
-    )
-
-
-    # Create chunks
-
-    chunks = create_chunks(
-        pages
-    )
-
-
-    # Create embeddings
-
-    embeddings = [
-        create_embedding(
-            chunk["text"]
+        pdf_path = (
+            f"data/uploads/{document_id}.pdf"
         )
-        for chunk in chunks
-    ]
 
+        # Save PDF
+        with open(pdf_path, "wb") as f:
+            f.write(await file.read())
 
-    # Store in ChromaDB
+        # Extract
+        pages = extract_pdf(pdf_path)
 
-    add_chunks(
-        chunks,
-        embeddings,
-        document_id
-    )
+        # Chunk
+        chunks = create_chunks(pages)
 
+        # Embeddings
+        embeddings = [
+            create_embedding(chunk["text"])
+            for chunk in chunks
+        ]
+
+        # Store in vector DB
+        add_chunks(
+            chunks=chunks,
+            embeddings=embeddings,
+            document_id=document_id,
+            filename=file.filename
+        )
+
+        uploaded_documents.append({
+            "document_id": document_id,
+            "filename": file.filename,
+            "chunks": len(chunks)
+        })
 
     return {
-        "document_id": document_id,
-        "chunks": len(chunks)
+        "documents": uploaded_documents
     }

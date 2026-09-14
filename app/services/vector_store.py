@@ -46,7 +46,7 @@ def add_chunks(
 
 def search(
     query_embedding,
-    document_id,
+    document_ids,
     top_k=5
 ):
 
@@ -56,7 +56,9 @@ def search(
         n_results=top_k,
 
         where={
-            "document_id": document_id
+            "document_id": {
+                "$in": document_ids
+            }
         },
 
         include=[

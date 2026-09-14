@@ -17,7 +17,7 @@ def chat(request: ChatRequest):
 
     documents, metadatas = retrieve(
         request.question,
-        request.document_id
+        request.document_ids
     )
 
 
@@ -28,15 +28,16 @@ def chat(request: ChatRequest):
     )
 
 
-    pages = sorted(
-        set(
-            metadata["page"]
-            for metadata in metadatas
-        )
-    )
+    sources = []
 
+    for metadata in metadatas:
+
+        sources.append({
+            "filename": metadata["filename"],
+            "page": metadata["page"]
+        })
 
     return {
         "answer": answer,
-        "sources": pages
+        "sources": sources
     }
