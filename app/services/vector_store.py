@@ -14,7 +14,8 @@ collection = client.get_or_create_collection(
 def add_chunks(
     chunks,
     embeddings,
-    document_id
+    document_id,
+    filename
 ):
 
     ids = []
@@ -33,7 +34,8 @@ def add_chunks(
 
         metadatas.append({
             "page": chunk["page"],
-            "document_id": document_id
+            "document_id": document_id,
+            "filename": filename
         })
 
     collection.upsert(

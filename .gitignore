@@ -20,12 +20,12 @@ env/
 
 
 # ChromaDB / Vector Store
-app/storage/chroma/
+storage/chroma/
 
 
 # Uploaded / Generated Data
 
-app/data/*
+data/*
 !app/data/.gitkeep
 
 

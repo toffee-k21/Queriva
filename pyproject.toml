@@ -3,7 +3,7 @@ name = "Queriva"
 version = "0.1.0"
 requires-python = ">=3.9"
 dependencies = [
-    "fastapi",
+    "fastapi[standard]",
     "uvicorn[standard]",
     "python-multipart",
     "pymupdf",
@@ -11,5 +11,5 @@ dependencies = [
     "sentence-transformers",
     "google-genai",
     "python-dotenv",
-    "pydantic"
+    "pydantic",
 ]
