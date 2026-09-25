@@ -9,7 +9,7 @@ reranker = CrossEncoder(
 def retrieve(
     question,
     document_ids,
-    top_k=5
+    top_k=20
 ):
 
     query_embedding = create_embedding(
