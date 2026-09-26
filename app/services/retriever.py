@@ -9,7 +9,8 @@ reranker = CrossEncoder(
 def retrieve(
     question,
     document_ids,
-    top_k=20
+    candidate_k=20,
+    top_k = 5
 ):
 
     query_embedding = create_embedding(
@@ -19,7 +20,7 @@ def retrieve(
     results = search(
         query_embedding,
         document_ids,
-        top_k
+        candidate_k
     )
 
     documents = results["documents"][0]
@@ -39,6 +40,7 @@ def retrieve(
         reverse=True
     )
 
-    return [
-        (doc, metadata) for doc, score, metadata in ranked_docs[:top_k]
-    ]
+    return (
+    [doc for doc, score, metadata in ranked_docs[:top_k]],
+    [metadata for doc, score, metadata in ranked_docs[:top_k]]
+)
