@@ -12,3 +12,5 @@ class Settings:
 
 
 settings = Settings()
+
+# fallback , if ollama model fails (this part need to be implemented in the future)
