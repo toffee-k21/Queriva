@@ -13,4 +13,7 @@ dependencies = [
     "python-dotenv",
     "pydantic",
     "ollama>=0.6.2",
+    "sqlalchemy>=2.0.54",
+    "alembic>=1.16.5",
+    "psycopg>=3.2.13",
 ]
