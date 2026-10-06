@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+from fastapi.security import OAuth2PasswordBearer
 
 from app.api.routes import documents
 from app.api.routes import chat
 from fastapi.middleware.cors import CORSMiddleware
 
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 app = FastAPI(
     title="Queriva",

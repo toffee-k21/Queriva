@@ -1,43 +1,23 @@
 from fastapi import APIRouter
 
-from app.schemas.chat import ChatRequest
+from app.schemas.auth import User
 
 from app.services.retriever import retrieve
 from app.services.generator import generate_answer
 
 
 router = APIRouter(
-    prefix="/chat",
-    tags=["Chat"]
+    prefix="/auth",
+    tags=["Auth"]
 )
 
 
-@router.post("/")
-def chat(request: ChatRequest):
-
-    documents, metadatas = retrieve(
-        request.question,
-        request.document_ids
-    )
-
-
-    answer = generate_answer(
-        request.question,
-        documents,
-        metadatas
-    )
-
-
-    sources = []
-
-    for metadata in metadatas:
-
-        sources.append({
-            "filename": metadata["filename"],
-            "page": metadata["page"]
-        })
+@router.post("/signup")
+def chat(request: User):
+    
+    
 
     return {
-        "answer": answer,
-        "sources": sources
+        
     }
+
