@@ -67,7 +67,9 @@ def signup(request: User):
         session.commit()
         session.refresh(new_user)
 
-    return {
-        "message": "User created successfully"
-    }
+    access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    access_token = create_access_token(
+            data={"sub": request.email}, expires_delta=access_token_expires
+        )
+    return Token(access_token=access_token, token_type="bearer")
 
