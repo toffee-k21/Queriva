@@ -6,7 +6,7 @@ class Token(BaseModel):
 
 
 class TokenData(BaseModel):
-    name: str | None = None
+    email: str | None = None
 
 
 class User(BaseModel):
