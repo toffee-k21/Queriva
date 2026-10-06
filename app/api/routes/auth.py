@@ -10,6 +10,8 @@ from datetime import  timedelta
 from typing import Annotated
 
 from app.services.auth import authenticate_user, create_access_token
+from app.models.user import User as UserModel
+from app.schemas.auth import Token, User
 
 
 
@@ -24,7 +26,8 @@ router = APIRouter(
 async def login_for_access_token(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> Token:
-    user = authenticate_user(form_data.email, form_data.password)
+    # form_data.username is actually the email, as we are using email as the username
+    user = authenticate_user(form_data.username, form_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -39,25 +42,32 @@ async def login_for_access_token(
 
 
 
-@router.post("/register")
+@router.post("/register", status_code=status.HTTP_201_CREATED)
 def signup(request: User):
-    # add vailadation for email and password
     if not request.email:
-        raise HTTPException(status_code=400, detail="Email is required")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Email is required"
+        )
+
     if not request.password:
-        raise HTTPException(status_code=400, detail="Password is required")
-    
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password is required"
+        )
+
     with Session(engine) as session:
-        newUser = User(
+        new_user = UserModel(
             name=request.name,
             email=request.email,
             password=request.password,
         )
-        session.add_all([newUser])
+
+        session.add(new_user)
         session.commit()
+        session.refresh(new_user)
 
     return {
         "message": "User created successfully"
     }
-
 
