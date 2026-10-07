@@ -1,25 +1,31 @@
+from typing import Annotated
 import uuid
 import os
 
-from fastapi import APIRouter, UploadFile, File
+from fastapi import APIRouter, Depends, UploadFile, File
 
+from app.schemas.auth import User
+from app.services.auth import get_current_user
 from app.services.pdf import extract_pdf
 from app.services.chunker import create_chunks
 from app.services.embeddings import create_embedding
 from app.services.vector_store import add_chunks
+from app.services.db import insert_into_document_table
 
 
 router = APIRouter(
     prefix="/documents",
-    tags=["Documents"]
+    tags=["Documents"],
 )
 
 @router.post("/upload")
 async def upload_pdfs(
-    files: list[UploadFile] = File(...)
+    current_user: Annotated[User, Depends(get_current_user)],
+    files: list[UploadFile] = File(...),
 ):
 
     uploaded_documents = []
+
 
     for file in files:
 
@@ -63,6 +69,12 @@ async def upload_pdfs(
             "filename": file.filename,
             "chunks": len(chunks)
         })
+
+        insert_into_document_table(
+            document_id=document_id,
+            filename=file.filename,
+            user_id=current_user.id
+        )
 
     return {
         "documents": uploaded_documents
