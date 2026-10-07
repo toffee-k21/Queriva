@@ -10,7 +10,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from requests import session
 from sqlalchemy.orm import Session
 from app.schemas.auth import TokenData, User
-from main import oauth2_scheme
+from app.core.security import oauth2_scheme
 from jwt.exceptions import InvalidTokenError
 from app.core.config import settings
 from app.core.database import engine
