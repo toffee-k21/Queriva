@@ -12,7 +12,7 @@ config = context.config
 from app.core.database import Base
 from app.core.config import settings
 
-from app.models.user import User
+from app.models import user, document
 
 config.set_main_option(
     "sqlalchemy.url",
