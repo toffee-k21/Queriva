@@ -9,12 +9,9 @@ from sqlalchemy.orm import Session
 from datetime import  timedelta
 from typing import Annotated
 
-from app.services.auth import authenticate_user, create_access_token
+from app.services.auth import authenticate_user, create_access_token, get_current_user
 from app.models.user import User as UserModel
 from app.schemas.auth import Token, User
-
-
-
 
 
 router = APIRouter(
@@ -73,3 +70,8 @@ def signup(request: User):
         )
     return Token(access_token=access_token, token_type="bearer")
 
+@router.get("/users/me/")
+async def read_users_me(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    return current_user
