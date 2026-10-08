@@ -21,7 +21,7 @@ router = APIRouter(
 @router.post("/upload")
 async def upload_pdfs(
     current_user: Annotated[UserInDB, Depends(get_current_user)],
-    files: list[UploadFile] = File(...),
+    files: Annotated[list[UploadFile], File()]
 ):
 
     uploaded_documents = []
@@ -29,7 +29,10 @@ async def upload_pdfs(
 
     for file in files:
 
-        document_id = str(uuid.uuid4())
+        document_id = insert_into_document_table(
+                        filename=file.filename,
+                        user_id=current_user.id
+                    )
 
         os.makedirs(
             "data/uploads",
@@ -69,12 +72,6 @@ async def upload_pdfs(
             "filename": file.filename,
             "chunks": len(chunks)
         })
-
-        insert_into_document_table(
-            document_id=document_id,
-            filename=file.filename,
-            user_id=current_user.id
-        )
 
     return {
         "documents": uploaded_documents
