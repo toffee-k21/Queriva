@@ -1,15 +1,14 @@
 
-import select
-
+from sqlalchemy import select
 from chromadb import db
 import jwt
 from pwdlib import PasswordHash
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
 from fastapi import Depends, FastAPI, HTTPException, status
-from requests import session
 from sqlalchemy.orm import Session
-from app.schemas.auth import TokenData, User
+from app.schemas.auth import TokenData
+from app.models.user import User
 from app.core.security import oauth2_scheme
 from jwt.exceptions import InvalidTokenError
 from app.core.config import settings

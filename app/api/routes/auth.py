@@ -1,3 +1,4 @@
+
 from app.core.config import settings
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -9,7 +10,7 @@ from sqlalchemy.orm import Session
 from datetime import  timedelta
 from typing import Annotated
 
-from app.services.auth import authenticate_user, create_access_token, get_current_user
+from app.services.auth import authenticate_user, create_access_token, get_current_user, get_password_hash
 from app.models.user import User as UserModel
 from app.schemas.auth import Token, User
 
@@ -53,11 +54,13 @@ def signup(request: User):
             detail="Password is required"
         )
 
+    hashed_password = get_password_hash(request.password)
+
     with Session(engine) as session:
         new_user = UserModel(
             name=request.name,
             email=request.email,
-            password=request.password,
+            hashed_password=hashed_password,
         )
 
         session.add(new_user)
