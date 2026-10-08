@@ -12,5 +12,10 @@ class TokenData(BaseModel):
 class User(BaseModel):
     name: str
     email: str | None = None
+    password: str
+
+class UserInDB(BaseModel):
+    id: int
+    name: str
+    email: str | None = None
     hashed_password: str
-    

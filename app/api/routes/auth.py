@@ -4,7 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from app.core.database import engine
 
-from app.schemas.auth import Token, User
+from app.schemas.auth import Token, User, UserInDB
 from sqlalchemy.orm import Session
 
 from datetime import  timedelta
@@ -75,6 +75,6 @@ def signup(request: User):
 
 @router.get("/users/me/")
 async def read_users_me(
-    current_user: Annotated[User, Depends(get_current_user)],
-) -> User:
+    current_user: Annotated[UserInDB, Depends(get_current_user)],
+) -> UserInDB:
     return current_user

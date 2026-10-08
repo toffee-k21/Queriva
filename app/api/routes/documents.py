@@ -4,7 +4,7 @@ import os
 
 from fastapi import APIRouter, Depends, UploadFile, File
 
-from app.schemas.auth import User
+from app.schemas.auth import User, UserInDB
 from app.services.auth import get_current_user
 from app.services.pdf import extract_pdf
 from app.services.chunker import create_chunks
@@ -20,7 +20,7 @@ router = APIRouter(
 
 @router.post("/upload")
 async def upload_pdfs(
-    current_user: Annotated[User, Depends(get_current_user)],
+    current_user: Annotated[UserInDB, Depends(get_current_user)],
     files: list[UploadFile] = File(...),
 ):
 
