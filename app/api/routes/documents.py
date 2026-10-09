@@ -11,6 +11,7 @@ from app.services.chunker import create_chunks
 from app.services.embeddings import create_embedding
 from app.services.vector_store import add_chunks
 from app.services.db import insert_into_document_table
+from app.services.db import get_documents_by_user_id
 
 
 router = APIRouter(
@@ -75,4 +76,15 @@ async def upload_pdfs(
 
     return {
         "documents": uploaded_documents
+    }
+
+@router.get("/list")
+async def list_documents(
+    current_user: Annotated[UserInDB, Depends(get_current_user)]
+):
+
+    documents = get_documents_by_user_id(current_user.id)
+
+    return {
+        "documents": documents
     }
