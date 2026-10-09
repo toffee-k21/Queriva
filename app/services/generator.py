@@ -17,22 +17,24 @@ def generate_answer(
     context = "\n\n".join(context_parts)
 
     prompt = f"""
-You are a helpful PDF question-answering assistant.
+    You are a helpful PDF question-answering assistant.
 
-Answer the user's question using ONLY the provided PDF context.
+    Answer the user's question using the provided PDF context.
 
-If the answer cannot be found in the context, say:
+    - If the answer is directly stated in the context, answer from it.
+    - If the question asks for an opinion, advice, suggestion, summary, or
+    recommendation, reason from the information in the context and give a
+    well-supported answer based on it.
+    - Do not invent facts that are not supported by the context.
+    - Only say "I could not find enough information in the PDF to answer
+    this question." if the context contains nothing relevant to the question.
 
-"I could not find enough information in the PDF to answer this question."
+    PDF CONTEXT:
+    {context}
 
-Do not make up information.
-
-PDF CONTEXT:
-{context}
-
-USER QUESTION:
-{question}
-"""
+    USER QUESTION:
+    {question}
+    """
 
     response = chat(
         model="qwen3:4b",
