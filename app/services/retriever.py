@@ -44,3 +44,4 @@ def retrieve(
     [doc for doc, score, metadata in ranked_docs[:top_k]],
     [metadata for doc, score, metadata in ranked_docs[:top_k]]
 )
+
