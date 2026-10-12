@@ -5,8 +5,6 @@
 Investigate how context provision and retrieval strategies affect a multi-PDF RAG system, particularly when answering indirect questions.
 
 ## Testing: Full PDF Context vs. Retrieval
-<img src="../images/before_fix_retrival.png" width="700" alt="Full PDF context results">
-<img src="../images/full_docs_response.png" width="700" alt="Full PDF context results">
 
 **Approaches tested**
 - **Full context:** Pass the PDF content directly to the LLM.
@@ -15,6 +13,9 @@ Investigate how context provision and retrieval strategies affect a multi-PDF RA
 **Question:** "What job roles suit me best and why?"
 
 **Observation:** The full-context approach generated job-role recommendations based on the resume. However, the earlier retrieval-based approach returned an insufficient-information response because it failed to provide enough relevant context.
+
+<img src="../images/before_fix_retrival.png" width="700" alt="Full PDF context results">
+<img src="../images/full_docs_response.png" width="700" alt="Full PDF context results">
 
 **Takeaway:** A RAG system can fail to answer a question even when the source document contains potentially useful information, if retrieval does not surface the relevant evidence.
 
