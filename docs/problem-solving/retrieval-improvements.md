@@ -26,6 +26,8 @@ Investigate how context provision and retrieval strategies affect a multi-PDF RA
 
 **Observation:** The improved pipeline generated job-role recommendations grounded in the resume's technical skills, projects, and experience.
 
+<img src="../images/after_fix_retrival.png" width="700" alt="Full PDF context results">
+
 **Takeaway:** Query expansion can help retrieve relevant evidence for questions that are not directly phrased like the source text.
 
 ## Current Retrieval Pipeline
