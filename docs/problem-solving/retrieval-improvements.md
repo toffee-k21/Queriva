@@ -5,6 +5,8 @@
 Investigate how context provision and retrieval strategies affect a multi-PDF RAG system, particularly when answering indirect questions.
 
 ## Testing: Full PDF Context vs. Retrieval
+<img src="../images/before_fix_retrival.png" width="700" alt="Full PDF context results">
+<img src="../images/full_docs_response.png" width="700" alt="Full PDF context results">
 
 **Approaches tested**
 - **Full context:** Pass the PDF content directly to the LLM.
