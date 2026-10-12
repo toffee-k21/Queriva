@@ -49,7 +49,7 @@ def add_chunks(
 def search(
     query_embedding,
     document_ids,
-    top_k=5
+    top_k
 ):
 
     return collection.query(
