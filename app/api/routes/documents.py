@@ -1,10 +1,9 @@
 from typing import Annotated
-import uuid
 import os
 
 from fastapi import APIRouter, Depends, UploadFile, File
 
-from app.schemas.auth import User, UserInDB
+from app.schemas.auth import UserInDB
 from app.services.auth import get_current_user
 from app.services.pdf import extract_pdf
 from app.services.chunker import create_chunks
