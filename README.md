@@ -315,38 +315,3 @@ These are the commands implied by the dependencies and application structure; th
 ### CORS
 
 `app/main.py` currently allows the origin `http://localhost:3000`, credentials, all methods, and all headers. Change this configuration if your frontend runs at a different origin.
-
-## Database migrations
-
-Alembic configuration is in `alembic.ini`; `alembic/env.py` imports `Base` and the `User` and `Document` models so their metadata can be used for migrations. It sets Alembic's SQLAlchemy URL from `settings.DATABASE_URL`.
-
-The migration history contains:
-1. `18cece4ff770_init_migration.py`: creates `users` and `documents`; the initial `users` schema uses a `password` column.
-2. `4055f48d061e_update_users_table.py`: adds `hashed_password` and drops `password`.
-
-The current `User` model defines `hashed_password`, matching the second migration's intended final schema.
-
-## Implementation notes and current limitations
-
-These notes describe behavior visible in the current code and are important when using or extending the project:
-
-- **Chat route authentication:** unlike the document upload and list routes, `POST /chat/` does not declare a `get_current_user` dependency. The code accepts document IDs from the request and filters ChromaDB by those IDs, but it does not verify in that route that the selected documents belong to the requesting user.
-- **Document IDs:** `vector_store.search()` filters on the supplied `document_ids`; ownership enforcement is not implemented there.
-- **File validation:** the upload route accepts `UploadFile` objects but does not explicitly validate MIME type, file extension, PDF signature, file size, or upload limits before writing the bytes to a `.pdf` path.
-- **Upload consistency:** the SQL document row is inserted before the file is saved and processed. The current route does not implement rollback/cleanup across the SQL row, saved file, and vector-store writes if a later step fails.
-- **Database sessions:** `get_user()` creates a SQLAlchemy `Session` without a context manager and does not explicitly close it in that function. The document service functions do use `with Session(engine)`.
-- **Registration errors:** registration checks for a missing email and password, but does not explicitly handle duplicate-email database errors in the route.
-- **PDF extraction:** the extractor reads text from PDF pages. The code does not implement OCR for scanned/image-only PDFs; pages with empty extracted text are skipped.
-- **Chunking:** chunking is character-based and independently applied to each page. There is no token-aware chunking.
-- **Source output:** chat sources include filename and page, not chunk IDs or quoted passages. The source array is assembled from the selected retrieval metadata and is not separately deduplicated.
-- **Fallback model:** `app/core/config.py` contains a comment about a future Ollama fallback, but no fallback implementation is present there.
-- **Gemini setting:** `GEMINI_API_KEY` is loaded, and `google-genai` is listed as a dependency, but the current `generator.py` and `query_expansion.py` use Ollama.
-- **Experiment script:** `app/ab_testing_rag.py` uses a hard-coded local PDF path (`data/uploads/2.pdf`) and is a standalone script, not an endpoint or part of the normal API call flow.
-- **Imports:** some modules contain imports that are not used by their current implementation. They do not create additional features.
-- **Runtime verification:** the README describes code paths and configuration; it does not assert that deployment, external services, model downloads, or every endpoint have been tested in a fresh environment.
-
-## Retrieval experiment
-
-`docs/problem-solving/retrieval-improvements.md` records an experiment around the question, “What job roles suit me best and why?” It contrasts sending full PDF text directly to the model with the earlier retrieval-based approach, which did not surface enough relevant context. The documented improvement was query expansion before semantic retrieval, followed by candidate aggregation/ranking and answer generation.
-
-The standalone script `app/ab_testing_rag.py` demonstrates the full-PDF-context side of that comparison: it extracts all page text from a hard-coded PDF path and passes the entire text to `qwen3:4b`. It is not wired into `app/main.py` or the chat endpoint.
