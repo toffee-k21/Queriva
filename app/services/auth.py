@@ -13,6 +13,7 @@ from app.core.security import oauth2_scheme
 from jwt.exceptions import InvalidTokenError
 from app.core.config import settings
 from app.core.database import engine
+from app.models.document import Document
 
 password_hash = PasswordHash.recommended()
 
@@ -74,3 +75,14 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]): #fine
     if user is None:
         raise credentials_exception
     return user
+
+
+def verify_user_ownership(user_id: str, document_ids: list[str]) -> bool:
+    with Session(engine) as session:
+        stmt = select(Document).where(
+            Document.user_id == user_id
+        )
+        documents = session.scalars(stmt).all()
+    
+    return all(doc_id in [doc.id for doc in documents] for doc_id in document_ids)
+    
