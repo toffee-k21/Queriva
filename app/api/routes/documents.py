@@ -11,7 +11,7 @@ from app.services.embeddings import create_embedding
 from app.services.vector_store import add_chunks
 from app.services.db import insert_into_document_table
 from app.services.db import get_documents_by_user_id
-
+from app.services.file_validation import validate_pdf_uploads
 
 router = APIRouter(
     prefix="/documents",
@@ -24,10 +24,11 @@ async def upload_pdfs(
     files: Annotated[list[UploadFile], File()]
 ):
 
+    validated_files = await validate_pdf_uploads(files)
+
     uploaded_documents = []
 
-
-    for file in files:
+    for file, content in validated_files:
 
         document_id = insert_into_document_table(
                         filename=file.filename,
@@ -45,7 +46,7 @@ async def upload_pdfs(
 
         # Save PDF
         with open(pdf_path, "wb") as f:
-            f.write(await file.read())
+            f.write(content)
 
         # Extract
         pages = extract_pdf(pdf_path)
