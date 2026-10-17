@@ -27,3 +27,11 @@ def get_documents_by_user_id(user_id: str):
         documents = session.scalars(stmt).all()
 
     return documents
+
+def delete_document(document_id: int):
+    with Session(engine) as session:
+        document = session.get(Document, document_id)
+
+        if document:
+            session.delete(document)
+            session.commit()

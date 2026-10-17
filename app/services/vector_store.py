@@ -68,3 +68,10 @@ def search(
             "metadatas"
         ]
     )
+
+def delete_document_chunks(document_id):
+    collection.delete(
+        where={
+            "document_id": document_id
+        }
+    )

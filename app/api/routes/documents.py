@@ -1,17 +1,16 @@
 from typing import Annotated
 import os
-
-from fastapi import APIRouter, Depends, UploadFile, File
-
+import logging
+from fastapi import APIRouter, Depends, UploadFile, File, HTTPException
 from app.schemas.auth import UserInDB
 from app.services.auth import get_current_user
 from app.services.pdf import extract_pdf
 from app.services.chunker import create_chunks
 from app.services.embeddings import create_embedding
-from app.services.vector_store import add_chunks
-from app.services.db import insert_into_document_table
-from app.services.db import get_documents_by_user_id
+from app.services.vector_store import add_chunks, delete_document_chunks
+from app.services.db import insert_into_document_table, delete_document, get_documents_by_user_id
 from app.services.file_validation import validate_pdf_uploads
+
 
 router = APIRouter(
     prefix="/documents",
@@ -31,48 +30,78 @@ async def upload_pdfs(
     for file, content in validated_files:
 
         document_id = insert_into_document_table(
-                        filename=file.filename,
-                        user_id=current_user.id
-                    )
-
-        os.makedirs(
-            "data/uploads",
-            exist_ok=True
+            filename=file.filename,
+            user_id=current_user.id
         )
+
 
         pdf_path = (
             f"data/uploads/{document_id}.pdf"
         )
 
-        # Save PDF
-        with open(pdf_path, "wb") as f:
-            f.write(content)
+        try:
+            os.makedirs(
+                "data/uploads",
+                exist_ok=True
+            )
 
-        # Extract
-        pages = extract_pdf(pdf_path)
+            # Save PDF
+            with open(pdf_path, "wb") as f:
+                f.write(content)
 
-        # Chunk
-        chunks = create_chunks(pages)
+            raise ValueError("Testing upload failure")
+        
+            # Extract
+            pages = extract_pdf(pdf_path)
 
-        # Embeddings
-        embeddings = [
-            create_embedding(chunk["text"])
-            for chunk in chunks
-        ]
+            # Chunk
+            chunks = create_chunks(pages)
 
-        # Store in vector DB
-        add_chunks(
-            chunks=chunks,
-            embeddings=embeddings,
-            document_id=document_id,
-            filename=file.filename
-        )
+            # Embeddings
+            embeddings = [
+                create_embedding(chunk["text"])
+                for chunk in chunks
+            ]
 
-        uploaded_documents.append({
-            "document_id": document_id,
-            "filename": file.filename,
-            "chunks": len(chunks)
-        })
+            # Store in vector DB
+            add_chunks(
+                chunks=chunks,
+                embeddings=embeddings,
+                document_id=document_id,
+                filename=file.filename
+            )
+
+            uploaded_documents.append({
+                "document_id": document_id,
+                "filename": file.filename,
+                "chunks": len(chunks)
+            })
+        except Exception as e:
+            # Clean up vector-store writes
+            try:
+                delete_document_chunks(document_id)
+            except Exception:
+                logging.exception("Failed to clean up ChromaDB")
+
+            # Delete saved PDF
+            try:
+                if os.path.exists(pdf_path):
+                    os.remove(pdf_path)
+            except OSError:
+                logging.exception("Failed to delete uploaded PDF")
+
+            # Delete SQL row
+            try:
+                delete_document(document_id)
+            except Exception:
+                logging.exception("Failed to delete SQL document row")
+
+            
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to process uploaded PDF"
+            ) from e
+
 
     return {
         "documents": uploaded_documents
