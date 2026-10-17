@@ -54,8 +54,6 @@ async def upload_pdfs(
             # Save PDF
             with open(pdf_path, "wb") as f:
                 f.write(content)
-
-            raise ValueError("Testing upload failure")
         
             # Extract
             pages = extract_pdf(pdf_path)
