@@ -34,6 +34,12 @@ async def upload_pdfs(
             user_id=current_user.id
         )
 
+        if document_id is None:
+            raise HTTPException(
+                status_code=500,
+                detail="Failed to create document record"
+            )
+
 
         pdf_path = (
             f"data/uploads/{document_id}.pdf"
