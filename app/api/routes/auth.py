@@ -13,6 +13,7 @@ from typing import Annotated
 from app.services.auth import authenticate_user, create_access_token, get_current_user, get_password_hash
 from app.models.user import User as UserModel
 from app.schemas.auth import Token, User
+from sqlalchemy.exc import IntegrityError
 
 
 router = APIRouter(
@@ -64,8 +65,18 @@ def signup(request: User):
         )
 
         session.add(new_user)
-        session.commit()
-        session.refresh(new_user)
+        try:
+            session.commit()
+            session.refresh(new_user)
+
+        except IntegrityError:
+            session.rollback()
+            raise HTTPException(
+                status_code=409,
+                detail="Email already registered"
+            )
+
+        return {"message": "Registration successful"}
 
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
