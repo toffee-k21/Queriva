@@ -1,3 +1,4 @@
+import asyncio
 from typing import Annotated
 import os
 import logging
@@ -80,6 +81,7 @@ async def upload_pdfs(
                 "filename": file.filename,
                 "chunks": len(chunks)
             })
+            await asyncio.sleep(10)
         except Exception as e:
             # Clean up vector-store writes
             try:
@@ -105,7 +107,15 @@ async def upload_pdfs(
                 status_code=500,
                 detail="Failed to process uploaded PDF"
             ) from e
-
+        finally:
+            try:
+                if os.path.exists(pdf_path):
+                    os.remove(pdf_path)
+            except OSError:
+                logging.exception(
+                    "Failed to delete temporary uploaded PDF: %s",
+                    pdf_path
+                )
 
     return {
         "documents": uploaded_documents
