@@ -81,7 +81,7 @@ async def upload_pdfs(
                 "filename": file.filename,
                 "chunks": len(chunks)
             })
-            await asyncio.sleep(10)
+            
         except Exception as e:
             # Clean up vector-store writes
             try:
