@@ -1,39 +1,37 @@
+
 import json
-from ollama import chat
+import logging
+
+from app.services.llm import generate_text
+
+logger = logging.getLogger(__name__)
 
 
 def expand_query(question: str) -> list[str]:
-    response = chat(
-        model="qwen3:4b",
-        messages=[
-            {
-                "role": "system",
-                "content": """
-                You generate search queries for a PDF retrieval system.
+    system_prompt = """
+    You generate search queries for a PDF retrieval system.
 
-                Generate 3-4 concise queries that search for different
-                pieces of evidence needed to answer the user's question.
+    Generate 3-4 concise queries that search for different
+    pieces of evidence needed to answer the user's question.
 
-                Consider relevant skills, projects, experience,
-                technologies, achievements, or other document sections
-                depending on the question.
+    Consider relevant skills, projects, experience,
+    technologies, achievements, or other document sections
+    depending on the question.
 
-                Do not answer the question.
-                Return a JSON array of strings only.
-                """
-            },
-            {
-                "role": "user",
-                "content": question
-            }
-        ],
-        format="json"
-    )
+    Do not answer the question.
+    Return a JSON array of strings only.
+    """.strip()
 
     try:
-        queries = json.loads(response.message.content)
+        response = generate_text(
+            system_prompt=system_prompt,
+            user_prompt=question,
+            json_mode=True,
+        )
 
-        # Support either a JSON array or an object containing queries.
+        queries = json.loads(response)
+
+        # Support a JSON array or an object containing queries.
         if isinstance(queries, dict):
             queries = queries.get("queries", [])
 
@@ -46,8 +44,11 @@ def expand_query(question: str) -> list[str]:
             if isinstance(q, str) and q.strip()
         ]
 
-        # Keep the original question and remove duplicate queries.
+        # Keep the original question and remove duplicates.
         return list(dict.fromkeys([question, *queries]))[:5]
 
-    except (json.JSONDecodeError, TypeError):
+    except Exception:
+        logger.exception(
+            "Query expansion failed; using the original question."
+        )
         return [question]
