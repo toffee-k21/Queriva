@@ -1,4 +1,4 @@
-from ollama import chat
+from app.services.llm import generate_text
 
 
 def generate_answer(
@@ -62,20 +62,12 @@ def generate_answer(
     Answer the question using the context above. When making an
     inference, make clear that it is based on the uploaded material.
     """.strip()
-
-    # Step 4: Generate the answer
-    response = chat(
-        model="qwen3:4b",
-        messages=[
-            {
-                "role": "system",
-                "content": system_prompt
-            },
-            {
-                "role": "user",
-                "content": user_prompt
-            }
-        ]
+    
+    # Step 4: Generate the answer with automatic fallback
+    return generate_text(
+        system_prompt=system_prompt,
+        user_prompt=user_prompt,
     )
+
 
     return response.message.content
