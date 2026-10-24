@@ -24,25 +24,26 @@ def retrieve(
     for query in queries:
         query_embedding = create_embedding(query)
 
+        #   Retrive relevent chunks with relevent document_id
         results = search(
             query_embedding,
             document_ids,
             candidate_k
         )
 
-        documents = results["documents"][0]
+        chunks = results["chunks"][0]
         metadatas = results["metadatas"][0]
 
-        for doc, metadata in zip(documents, metadatas):
+        for chunk, metadata in zip(chunks, metadatas):
             # Deduplicate the same chunk retrieved by multiple queries
             key = (
-                doc,
+                chunk,
                 json.dumps(metadata, sort_keys=True)
             )
 
             if key not in candidates:
                 candidates[key] = {
-                    "document": doc,
+                    "chunk": chunk,
                     "metadata": metadata
                 }
 
@@ -52,12 +53,12 @@ def retrieve(
     # Step 3: Rerank candidates against the original and
     # expanded queries.
     items = list(candidates.values())
-    documents = [item["document"] for item in items]
+    chunks = [item["chunk"] for item in items]
     metadatas = [item["metadata"] for item in items]
 
     pairs = [
-        (query, doc)
-        for doc in documents
+        (query, chunk)
+        for chunk in chunks
         for query in queries
     ]
 
@@ -66,17 +67,17 @@ def retrieve(
     # Each document has one score per query.
     scores_by_document = [
         max(scores[i * len(queries):(i + 1) * len(queries)])
-        for i in range(len(documents))
+        for i in range(len(chunks))
     ]
 
     ranked = sorted(
-        zip(documents, metadatas, scores_by_document),
+        zip(chunks, metadatas, scores_by_document),
         key=lambda item: item[2],
         reverse=True
     )
 
     # Step 4: Return top-ranked chunks and their metadata
     return (
-        [doc for doc, metadata, score in ranked[:top_k]],
-        [metadata for doc, metadata, score in ranked[:top_k]]
+        [chunk for chunk, metadata, score in ranked[:top_k]],
+        [metadata for chunk, metadata, score in ranked[:top_k]]
     )

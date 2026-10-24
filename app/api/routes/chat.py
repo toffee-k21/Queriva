@@ -19,18 +19,19 @@ def chat(request: ChatRequest,  current_user: Annotated[UserInDB, Depends(get_cu
         return {
             "error": "You do not have permission to access one or more of the specified documents."
         }
-    documents, metadatas = retrieve(
+    print("retrival request received")
+    chunks, metadatas = retrieve(
         request.question,
         request.document_ids
     )
 
-
+    print(f"Retrieved {len(chunks)} documents for question: {request.question}")
     answer = generate_answer(
         request.question,
-        documents,
+        chunks,
         metadatas
     )
-
+    print(f"Generated answer")
 
     sources = []
 

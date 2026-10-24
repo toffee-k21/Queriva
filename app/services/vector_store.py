@@ -46,28 +46,27 @@ def add_chunks(
     )
 
 
-def search(
-    query_embedding,
-    document_ids,
-    top_k
-):
 
-    return collection.query(
+def search(query_embedding, document_ids, top_k):
+    results = collection.query(
         query_embeddings=[query_embedding],
-
         n_results=top_k,
-
         where={
             "document_id": {
                 "$in": document_ids
             }
         },
-
         include=[
             "documents",
             "metadatas"
         ]
     )
+
+    return {
+        "chunks": results["documents"][0],
+        "metadatas": results["metadatas"][0]
+    }
+
 
 def delete_document_chunks(document_id):
     collection.delete(
