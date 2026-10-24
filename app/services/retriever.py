@@ -31,8 +31,8 @@ def retrieve(
             candidate_k
         )
 
-        chunks = results["chunks"][0]
-        metadatas = results["metadatas"][0]
+        chunks = results["chunks"]
+        metadatas = results["metadatas"]
 
         for chunk, metadata in zip(chunks, metadatas):
             # Deduplicate the same chunk retrieved by multiple queries
@@ -57,21 +57,14 @@ def retrieve(
     metadatas = [item["metadata"] for item in items]
 
     pairs = [
-        (query, chunk)
+        (question, chunk)
         for chunk in chunks
-        for query in queries
     ]
 
     scores = reranker.predict(pairs)
 
-    # Each document has one score per query.
-    scores_by_document = [
-        max(scores[i * len(queries):(i + 1) * len(queries)])
-        for i in range(len(chunks))
-    ]
-
     ranked = sorted(
-        zip(chunks, metadatas, scores_by_document),
+        zip(chunks, metadatas, scores),
         key=lambda item: item[2],
         reverse=True
     )
